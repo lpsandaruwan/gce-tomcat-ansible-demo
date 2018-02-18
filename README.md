@@ -19,7 +19,9 @@ pip install -r requirements.txt
 Make sure that have a Google Cloud Platform account and the billing is enabled, see [https://cloud.google.com](https://cloud.google.com)
 * Follow this guide to create new Google Cloud Platform projects, [https://cloud.google.com/resource-manager/docs/creating-managing-projects](https://cloud.google.com/resource-manager/docs/creating-managing-projects)
 * Create a new service account and obtain a JSON formatted private key for the account, see [https://cloud.google.com/iam/docs/creating-managing-service-account-keys](https://cloud.google.com/iam/docs/creating-managing-service-account-keys)
-* Generate SSH keys(see [https://cloud.google.com/compute/docs/instances/adding-removing-ssh-keys#createsshkeys](https://cloud.google.com/compute/docs/instances/adding-removing-ssh-keys#createsshkeys)) and add them as metadata(see [https://cloud.google.com/compute/docs/instances/adding-removing-ssh-keys](https://cloud.google.com/compute/docs/instances/adding-removing-ssh-keys))
+* To setup SSH keys to access GCE instances, simply use Google Cloud SDK tools, [https://cloud.google.com/sdk/gcloud/reference/compute/config-ssh](https://cloud.google.com/sdk/gcloud/reference/compute/config-ssh) 
+or create SSH keys(see [https://cloud.google.com/compute/docs/instances/adding-removing-ssh-keys#createsshkeys](https://cloud.google.com/compute/docs/instances/adding-removing-ssh-keys#createsshkeys)) 
+and add them as metadata(see [https://cloud.google.com/compute/docs/instances/adding-removing-ssh-keys](https://cloud.google.com/compute/docs/instances/adding-removing-ssh-keys))
 * Then configure the `gce_vars/authentication` by giving the project id, obtained JSON key file location for the new GCP project and the created service account email.
 * For the configurations of `gce_vars/instance`, refer [https://cloud.google.com/compute/docs/regions-zones](https://cloud.google.com/compute/docs/regions-zones/), 
 [https://cloud.google.com/compute/docs/machine-types](https://cloud.google.com/compute/docs/machine-types), 

@@ -3,7 +3,7 @@
 
 - name: Verify whether the tomcat has been already configured by existance of catalina executable
   stat:
-    path: "{{ tomcat_home_dir }}/bin/catalina.sh"
+    path: "$CATALINA_HOME/bin/catalina.sh"
   register: catalina_executable
 
 - name: Download Apache Tomcat {{ tomcat_dir }}
@@ -28,20 +28,22 @@
 - name: Copy Apache Tomcat user roles configuration file, tomcat-users.xml > {{ tomcat_home_dir }}/conf/tomcat-users.xml
   copy: src=tomcat-users.xml dest={{ tomcat_home_dir }}/conf/tomcat-users.xml
 
-- name: Stop Apache Tomcat server if running after settings changes
-  command: sh {{ tomcat_home_dir }}/bin/shutdown.sh
+- name: Stop Apache Tomcat server if any server is running
+  command: sh $CATALINA_HOME/bin/shutdown.sh
   ignore_errors: yes
 
-- name: Wait for things to cool down a bit
+- name: Wait for exsisted Tomcat server to get shut down and set new CATALINA_HOME enviroment variable to {{ tomcat_home_dir }}
   wait_for:
     host: 0.0.0.0
     port: "{{ tomcat_server_port }}"
     state: stopped
     timeout: 10
   ignore_errors: yes
+  environment:
+      CATALINA_HOME: "{{ tomcat_home_dir }}"
 
 - name: Start Apache Tomcat server
-  command: sh {{ tomcat_home_dir }}/bin/startup.sh
+  command: sh $CATALINA_HOME/bin/startup.sh
 
 - name: Wait for Apache Tomcat server to be started, poll Tomcat server port {{ tomcat_server_port }}
   wait_for:
