@@ -1,0 +1,8 @@
+---
+# Oracle JDK links and directories to download and install
+
+jdk_download_url: http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz
+jdk_archive_name: jdk-8u131-linux-x64.tar.gz
+jdk_system_dir: /usr/share/java-1.8.0
+jdk_version: "jdk1.8.0_131"
+jdk_home_dir: "{{ jdk_system_dir }}/{{ jdk_version }}"

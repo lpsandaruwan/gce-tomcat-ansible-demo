@@ -1,0 +1,7 @@
+---
+# Bootstrap GCE instance, install Java, configure tomcat on it and deploy a war file
+
+- include: bootstrap-instance.yml
+#- include: install-java.yml
+#- include: install-tomcat.yml
+- include: deploy-war.yml

@@ -1,0 +1,40 @@
+- name: Create a new GCE instance
+  vars_files:
+    - gce_vars/authentication
+    - gce_vars/instance
+  hosts: local
+  gather_facts: no
+
+  tasks:
+    - name: Create GCE instance {{ name }}, machine {{ type }}, image {{ image }}
+      gce:
+        instance_names: "{{ name }}"
+        machine_type: "{{ type }}"
+        image: "{{ image }}"
+        zone: "{{ zone }}"
+        project_id: "{{ project_id }}"
+        credentials_file: "{{ credentials_file }}"
+        service_account_email: "{{ service_account_email }}"
+        tags: gcei
+      register: gcei
+
+    - name: Allow HTTP traffic on GCE instance on, {{ allowed_ports_tcp }} and {{ allowed_ports_udp }}
+      gce_net:
+        fwname: "tomcat"
+        name: default
+        allowed: "{{ allowed_ports_tcp }}"
+        allowed: "{{ allowed_ports_udp }}"
+        ipv4_range: "0.0.0.0/0"
+        target_tags: gcei
+        project_id: "{{ project_id }}"
+        credentials_file: "{{ credentials_file }}"
+        service_account_email: "{{ service_account_email }}"
+
+  post_tasks:
+    - name: Wait for new GCE instance to be initialized
+      wait_for: delay=1 host={{ item.public_ip }} port=22 state=started timeout=30
+      with_items: "{{ gcei.instance_data }}"
+
+    - name: Save host data for first zone
+      add_host: hostname={{ item.public_ip }} groupname=gce_instance_hostname
+      with_items: "{{ gcei.instance_data }}"

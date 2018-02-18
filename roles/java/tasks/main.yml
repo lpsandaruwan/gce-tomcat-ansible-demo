@@ -1,0 +1,41 @@
+---
+# Configure JDK
+
+- name: Verify whether the JDK has been already installed by existance of given Java executable
+  stat:
+    path: "{{ jdk_home_dir }}/bin/java"
+  register: java_executable
+
+- name: Download Oracle JDK, {{ jdk_version }}
+  get_url:
+    url: "{{ jdk_download_url }}"
+    headers: "Cookie:oraclelicense=accept-securebackup-cookie"
+    dest: /tmp/{{ jdk_archive_name }}
+  when: java_executable.stat.exists == False
+
+- name: Create JDK home directory, {{ jdk_home_dir }}
+  file:
+    name: "{{ jdk_home_dir }}"
+    state: directory
+  when: java_executable.stat.exists == False
+
+- name: Extract downloaded JDK archive to {{ jdk_system_dir }}
+  unarchive:
+    src: /tmp/{{ jdk_archive_name }}
+    dest: "{{ jdk_system_dir }}"
+    copy: no
+    owner: root
+    group: root
+  when: java_executable.stat.exists == False
+
+- name: Add new Java version to the alternatives list, {{ jdk_home_dir }}/bin/java
+  alternatives:
+    name: java
+    link: /usr/bin/java
+    path: "{{ jdk_home_dir }}/bin/java"
+  when: java_executable.stat.exists == False
+
+- name: Cleanup temporary files
+  file:
+    path: /tmp/{{ jdk_archive_name }}
+    state: absent

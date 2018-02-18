@@ -1,0 +1,58 @@
+---
+# Configure Apache Tomcat
+
+- name: Verify whether the tomcat has been already configured by existance of catalina executable
+  stat:
+    path: "{{ tomcat_home_dir }}/bin/catalina.sh"
+  register: catalina_executable
+
+- name: Download Apache Tomcat {{ tomcat_dir }}
+  get_url:
+    url: "{{ tomcat_download_url }}"
+    dest: /tmp/{{ tomcat_archive_name }}
+  when: catalina_executable.stat.exists == False
+
+- name: Create Apache Tomcat home directory {{ tomcat_home_dir }}
+  file:
+    name: "{{ tomcat_home_dir }}"
+    state: directory
+  when: catalina_executable.stat.exists == False
+
+- name: Extract downloaded Apache Tomcat archive, /tmp/{{ tomcat_archive_name }} > "{{ tomcat_root_dir }}"
+  unarchive:
+    src: /tmp/{{ tomcat_archive_name }}
+    dest: "{{ tomcat_root_dir }}"
+    copy: no
+  when: catalina_executable.stat.exists == False
+
+- name: Copy Apache Tomcat user roles configuration file, tomcat-users.xml > {{ tomcat_home_dir }}/conf/tomcat-users.xml
+  copy: src=tomcat-users.xml dest={{ tomcat_home_dir }}/conf/tomcat-users.xml
+
+- name: Stop Apache Tomcat server if running after settings changes
+  command: sh {{ tomcat_home_dir }}/bin/shutdown.sh
+  ignore_errors: yes
+
+- name: Wait for things to cool down a bit
+  wait_for:
+    host: 0.0.0.0
+    port: "{{ tomcat_server_port }}"
+    state: stopped
+    timeout: 10
+  ignore_errors: yes
+
+- name: Start Apache Tomcat server
+  command: sh {{ tomcat_home_dir }}/bin/startup.sh
+
+- name: Wait for Apache Tomcat server to be started, poll Tomcat server port {{ tomcat_server_port }}
+  wait_for:
+    host: 0.0.0.0
+    port: "{{ tomcat_server_port }}"
+    state: started
+    timeout: 60
+
+- name: Cleanup temporary files, rm /tmp/{{ tomcat_archive_name }}
+  become: yes
+  become_method: sudo
+  file:
+    path: /tmp/{{ tomcat_archive_name }}
+    state: absent

@@ -1,0 +1,9 @@
+---
+# War file links and directories to download and deploy
+
+tomcat_dir: "apache-tomcat-8.0.50"
+tomcat_root_dir: "$HOME/apache"
+tomcat_home_dir: "{{ tomcat_root_dir }}/{{ tomcat_dir }}"
+war_file_url: "https://tomcat.apache.org/tomcat-8.0-doc/appdev/sample/sample.war"
+war_file_name: "sample.war"
+deployed_path: "{{ tomcat_home_dir }}/webapps/sample"

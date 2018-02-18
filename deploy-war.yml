@@ -1,0 +1,7 @@
+---
+# Deploy war file to Apache Tomcat in GCE
+
+- name: Deploy war file to Apache Tomcat in the GCE instance
+  hosts: gce_instance_hostname
+  roles:
+    - tomcat-deploy

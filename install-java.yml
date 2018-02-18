@@ -1,0 +1,9 @@
+---
+# Install Java in GCE
+
+- name: Install Java in the GCE instance
+  hosts: gce_instance_hostname
+  become: yes
+  become_method: sudo
+  roles:
+    - java
