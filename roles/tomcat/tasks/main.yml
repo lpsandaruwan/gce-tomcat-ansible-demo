@@ -25,25 +25,56 @@
     copy: no
   when: catalina_executable.stat.exists == False
 
-- name: Copy Apache Tomcat user roles configuration file, tomcat-users.xml > {{ tomcat_home_dir }}/conf/tomcat-users.xml
-  copy: src=tomcat-users.xml dest={{ tomcat_home_dir }}/conf/tomcat-users.xml
-
 - name: Stop Apache Tomcat server if any server is running
-  command: sh $CATALINA_HOME/bin/shutdown.sh
+  command: catalina stop
   ignore_errors: yes
 
-- name: Wait for exsisted Tomcat server to get shut down and set new CATALINA_HOME enviroment variable to {{ tomcat_home_dir }}
+- name: Wait for Tomcat server to get shut down
   wait_for:
     host: 0.0.0.0
     port: "{{ tomcat_server_port }}"
     state: stopped
     timeout: 10
   ignore_errors: yes
-  environment:
-      CATALINA_HOME: "{{ tomcat_home_dir }}"
 
-- name: Start Apache Tomcat server
-  command: sh $CATALINA_HOME/bin/startup.sh
+- name: Set CATALINA_HOME to {{ tomcat_home_dir }}
+  become_method: sudo
+  become: yes
+  lineinfile:
+    dest: "/etc/environment"
+    state: "present"
+    regexp: "^CATALINA_HOME"
+    line: CATALINA_HOME={{ tomcat_home_dir }}
+
+- name: Set CATALINA_BASE to {{ tomcat_home_dir }}
+  become_method: sudo
+  become: yes
+  lineinfile:
+    dest: "/etc/environment"
+    state: "present"
+    regexp: "^CATALINA_BASE"
+    line: CATALINA_BASE={{ tomcat_home_dir }}
+
+- name: Add catalina as a configurable alternative
+  become_method: sudo
+  become: yes
+  alternatives:
+    name: catalina
+    link: "/usr/bin/catalina"
+    path: "{{ tomcat_home_dir }}/bin/catalina.sh"
+  when: catalina_executable.stat.exists == False
+
+- name: Copy Apache Tomcat user roles configuration file, tomcat-users.xml > {{ tomcat_home_dir }}/conf/tomcat-users.xml
+  copy:
+    src: "tomcat-users.xml"
+    dest: "{{ tomcat_home_dir }}/conf/tomcat-users.xml"
+
+- name: Start Apache Tomcat application server from {{ tomcat_home_dir }}
+  shell: cd $CATALINA_HOME/bin/ && nohup /usr/bin/catalina start
+  register: ps
+
+- debug: var=ps.stdout_lines
+
 
 - name: Wait for Apache Tomcat server to be started, poll Tomcat server port {{ tomcat_server_port }}
   wait_for:
@@ -53,7 +84,6 @@
     timeout: 60
 
 - name: Cleanup temporary files, rm /tmp/{{ tomcat_archive_name }}
-  become: yes
   become_method: sudo
   file:
     path: /tmp/{{ tomcat_archive_name }}

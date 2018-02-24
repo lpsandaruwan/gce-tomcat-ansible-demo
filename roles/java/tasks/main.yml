@@ -28,14 +28,19 @@
     group: root
   when: java_executable.stat.exists == False
 
-- name: Add new Java version to the alternatives list and set JAVA_HOME environment variable to {{ jdk_home_dir }}
+- name: Add new Java version to the alternatives list
   alternatives:
     name: java
     link: /usr/bin/java
     path: "{{ jdk_home_dir }}/bin/java"
   when: java_executable.stat.exists == False
-  environment:
-      JAVA_HOME: "{{ jdk_home_dir }}"
+
+- name: Set JAVA_HOME to {{ jdk_home_dir }}
+  lineinfile:
+    dest: "/etc/environment"
+    state: "present"
+    regexp: "^JAVA_HOME"
+    line: "JAVA_HOME={{ jdk_home_dir }}"
 
 - name: Cleanup temporary files
   file:

@@ -3,5 +3,6 @@
 
 - name: Deploy war file to Apache Tomcat in the GCE instance
   hosts: gce_instance_hostname
+  gather_facts: no
   roles:
     - tomcat-deploy
