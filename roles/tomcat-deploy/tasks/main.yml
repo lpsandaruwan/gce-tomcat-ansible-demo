@@ -25,6 +25,8 @@
     remote_src: yes
     src: "/tmp/{{ war_file_name }}"
     dest: "{{ tomcat_home_dir }}/webapps/"
+    become: yes
+    become_user: "{{ tomcat_user }}"
 
 - name: Cleanup temporary files, rm /tmp/{{ war_file_name }}
   become: yes

@@ -25,6 +25,21 @@
     copy: no
   when: catalina_executable.stat.exists == False
 
+- name: Add group {{ tomcat_user_group }}
+  group:
+    name: "{{ tomcat_user_group }}"
+  when: catalina_executable.stat.exists == False
+
+- name: Add new user {{ tomcat_user }}
+  user:
+    name: "{{ tomcat_user }}"
+    group: "{{ tomcat_user_group }}"
+    home: "{{ tomcat_home_dir }}"
+    createhome: no
+  become: True
+  become_method: sudo
+  when: catalina_executable.stat.exists == False
+
 - name: Stop Apache Tomcat server if any server is running
   command: catalina stop
   ignore_errors: yes

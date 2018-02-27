@@ -1,3 +1,3 @@
-project_id: "groovy-analyst-193706"
-credentials_file: "/home/lpsandaruwan/Desktop/dev/gce-tomcat-ansible/auth/TOMCAT-ANSIBLE-8d22e1420a56.json"
-service_account_email: "tomcat-ansible-demo@groovy-analyst-193706.iam.gserviceaccount.com"
+project_id: “project-id-193706”
+credentials_file: “/path/to/private/json/key/file”
+service_account_email: “tomcat-ansible-demo@service-account-193706.iam.gserviceaccount.com”
